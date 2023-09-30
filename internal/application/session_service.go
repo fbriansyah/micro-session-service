@@ -2,7 +2,6 @@ package application
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"time"
 
@@ -28,6 +27,7 @@ func generateSessionKey(id string) string {
 	return fmt.Sprintf("%s_%s", SESSION_CACHE_PREFIX, id)
 }
 
+// CreateSession new session and save it to cache database.
 func (s *SessionService) CreateSession(
 	userID string, accessDuration, refreshDuration time.Duration) (dmsession.Session, error) {
 
@@ -80,6 +80,8 @@ func (s *SessionService) CreateSession(
 
 	return sessionData, nil
 }
+
+// GetPayloadFromToken validate the token and get payload data
 func (s *SessionService) GetPayloadFromToken(token string) (dmtoken.Payload, error) {
 	// verify token to get payload data
 	payload, err := s.tokenMaker.VerifyToken(token)
@@ -95,6 +97,39 @@ func (s *SessionService) GetPayloadFromToken(token string) (dmtoken.Payload, err
 		ExpiredAt: payload.ExpiredAt,
 	}, nil
 }
-func (s *SessionService) RefreshToken(sessionID string) (dmsession.Session, error) {
-	return dmsession.Session{}, errors.New("refresh token not yet implemented")
+
+// RefreshToken generate new access token if token still valid
+func (s *SessionService) RefreshToken(sessionID string, duration time.Duration) (dmsession.Session, error) {
+	var session dmsession.Session
+	sessionKey := generateSessionKey(sessionID)
+
+	strData, err := s.cacheAdapter.GetData(sessionKey)
+
+	if err != nil {
+		return dmsession.Session{}, err
+	}
+
+	err = json.Unmarshal([]byte(strData), &session)
+	if err != nil {
+		return dmsession.Session{}, err
+	}
+
+	// create new access token
+	accessToken, accessPayload, err := s.tokenMaker.CreateToken(
+		MODE_ACCESS_TOKEN,
+		session.UserID,
+		duration,
+	)
+	if err != nil {
+		return dmsession.Session{}, err
+	}
+
+	return dmsession.Session{
+		ID:                    session.ID,
+		UserID:                session.UserID,
+		RefreshToken:          session.RefreshToken,
+		AccessToken:           accessToken,
+		RefreshTokenExpiresAt: session.RefreshTokenExpiresAt,
+		AccessTokenExpiresAt:  accessPayload.ExpiredAt,
+	}, nil
 }

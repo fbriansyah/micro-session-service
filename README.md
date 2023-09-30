@@ -1,43 +1,47 @@
-# Micro Auth Service
-Aplikasi ini merupakan service untuk melakukan authentication.
+# Micro Session Service
+Aplikasi ini merupakan service untuk mengolah data sessian dan generate token.
 
 ## GRPC Service
 ```proto3
 syntax = "proto3";
 
-package payment;
-
+package session;
 
 import "proto/session/type/session.proto";
 
 option go_package = 
-  "github.com/fbriansyah/micro-payment-proto/protogen/go/auth";
+  "github.com/fbriansyah/micro-payment-proto/protogen/go/session";
 
-message LoginRequest {
-  string username=1 [json_name="username"];
-  string password=2 [json_name="password"];
+message Session {
+  string id=1;
+  string user_id=2;
+  string access_token=3;
+  string refresh_token=4;
+  google.type.DateTime access_token_expires_at=5;
+  google.type.DateTime refresh_token_expires_at=6;
 }
 
-message LoginResponse {
-  string userid=1 [json_name="userid"];
-  string name=2 [json_name="name"];
-  session.Session session=3 [json_name="session"];
+message UserID {
+  string user_id=1;
 }
 
-message CreateUserRequest {
-  string username=1 [json_name="username"];
-  string password=2 [json_name="password"];
-  string name=3 [json_name="name"];
+message SessionID {
+  string session_id=1;
 }
 
-message CreateUserResponse {
-  string userid=1 [json_name="userid"];
-  string username=2 [json_name="username"];
-  string name=3 [json_name="name"];
+message Token {
+  string access_token=1;
 }
 
-service AuthService {
-  rpc Login (LoginRequest) returns (LoginResponse);
-  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
+message Payload {
+  string user_id=1;
+}
+
+
+service SessionService {
+  rpc CreateSession(UserID) returns (Session) {}
+  rpc RefreshToken(SessionID) returns (Session) {}
+  rpc DeleteSession(SessionID) returns (SessionID) {}
+  rpc GetPayloadFromToken(Token) returns (Payload) {}
 }
 ```

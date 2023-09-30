@@ -24,6 +24,10 @@ type SessionService struct {
 	cacheAdapter port.CacheAdapterPort
 }
 
+func generateSessionKey(id string) string {
+	return fmt.Sprintf("%s_%s", SESSION_CACHE_PREFIX, id)
+}
+
 func (s *SessionService) CreateSession(
 	userID string, accessDuration, refreshDuration time.Duration) (dmsession.Session, error) {
 
@@ -57,7 +61,7 @@ func (s *SessionService) CreateSession(
 	}
 
 	// save session data to cache database
-	sessionKey := fmt.Sprintf("%s_%s", SESSION_CACHE_PREFIX, refreshPayload.ID.String())
+	sessionKey := generateSessionKey(refreshPayload.ID.String())
 
 	sessionJson, err := json.Marshal(sessionData)
 	if err != nil {
@@ -77,7 +81,19 @@ func (s *SessionService) CreateSession(
 	return sessionData, nil
 }
 func (s *SessionService) GetPayloadFromToken(token string) (dmtoken.Payload, error) {
-	return dmtoken.Payload{}, nil
+	// verify token to get payload data
+	payload, err := s.tokenMaker.VerifyToken(token)
+	if err != nil {
+		return dmtoken.Payload{}, err
+	}
+
+	return dmtoken.Payload{
+		ID:        payload.ID,
+		UserID:    payload.UserID,
+		Mode:      payload.Mode,
+		IssuedAt:  payload.IssuedAt,
+		ExpiredAt: payload.ExpiredAt,
+	}, nil
 }
 func (s *SessionService) RefreshToken(sessionID string) (dmsession.Session, error) {
 	return dmsession.Session{}, errors.New("refresh token not yet implemented")

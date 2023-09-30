@@ -1,6 +1,7 @@
 package application
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"time"
@@ -29,7 +30,7 @@ func generateSessionKey(id string) string {
 
 // CreateSession new session and save it to cache database.
 func (s *SessionService) CreateSession(
-	userID string, accessDuration, refreshDuration time.Duration) (dmsession.Session, error) {
+	ctx context.Context, userID string, accessDuration, refreshDuration time.Duration) (dmsession.Session, error) {
 
 	// create access token
 	accessToken, accessPayload, err := s.tokenMaker.CreateToken(
@@ -69,6 +70,7 @@ func (s *SessionService) CreateSession(
 	}
 
 	err = s.cacheAdapter.SetData(
+		ctx,
 		sessionKey,
 		string(sessionJson),
 		refreshDuration,
@@ -82,7 +84,7 @@ func (s *SessionService) CreateSession(
 }
 
 // GetPayloadFromToken validate the token and get payload data
-func (s *SessionService) GetPayloadFromToken(token string) (dmtoken.Payload, error) {
+func (s *SessionService) GetPayloadFromToken(ctx context.Context, token string) (dmtoken.Payload, error) {
 	// verify token to get payload data
 	payload, err := s.tokenMaker.VerifyToken(token)
 	if err != nil {
@@ -99,11 +101,11 @@ func (s *SessionService) GetPayloadFromToken(token string) (dmtoken.Payload, err
 }
 
 // RefreshToken generate new access token if token still valid
-func (s *SessionService) RefreshToken(sessionID string, duration time.Duration) (dmsession.Session, error) {
+func (s *SessionService) RefreshToken(ctx context.Context, sessionID string, duration time.Duration) (dmsession.Session, error) {
 	var session dmsession.Session
 	sessionKey := generateSessionKey(sessionID)
 
-	strData, err := s.cacheAdapter.GetData(sessionKey)
+	strData, err := s.cacheAdapter.GetData(ctx, sessionKey)
 
 	if err != nil {
 		return dmsession.Session{}, err

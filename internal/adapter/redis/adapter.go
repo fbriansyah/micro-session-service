@@ -15,23 +15,18 @@ type RedisAdapter struct {
 }
 
 func NewRedisAdapter(rdb *redis.Client) *RedisAdapter {
-	// rdb := redis.NewClient(&redis.Options{
-	// 	Addr:     addr,
-	// 	Password: "", // no password set
-	// 	DB:       0,  // use default DB
-	// })
 	return &RedisAdapter{
 		db: rdb,
 	}
 }
 
-func (a *RedisAdapter) SetData(key string, data string, duration time.Duration) error {
-	return a.db.Set(context.Background(), key, data, duration).Err()
+func (a *RedisAdapter) SetData(ctx context.Context, key string, data string, duration time.Duration) error {
+	return a.db.Set(ctx, key, data, duration).Err()
 }
 
-func (a *RedisAdapter) GetData(key string) (string, error) {
+func (a *RedisAdapter) GetData(ctx context.Context, key string) (string, error) {
 
-	strData, err := a.db.Get(context.Background(), key).Result()
+	strData, err := a.db.Get(ctx, key).Result()
 	if err != nil {
 		if err == redis.Nil {
 			return "", ErrorNotFound

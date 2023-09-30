@@ -9,7 +9,7 @@ import (
 // Maker is an interface for managing tokens
 type TokenMakerPort interface {
 	// CreateToken creates a new token for a specific username and duration
-	CreateToken(mode string, userID, duration time.Duration) (string, *dmtoken.Payload, error)
+	CreateToken(mode, userID string, duration time.Duration) (string, *dmtoken.Payload, error)
 
 	// VerifyToken checks if the token is valid or not
 	VerifyToken(token string) (*dmtoken.Payload, error)

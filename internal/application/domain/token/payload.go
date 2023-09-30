@@ -16,7 +16,7 @@ var (
 // Payload contains the payload data of the token
 type Payload struct {
 	ID        uuid.UUID `json:"id"`
-	UserId    int64     `json:"user_id"`
+	UserID    string    `json:"user_id"`
 	Mode      string    `json:"mode"`
 	IssuedAt  time.Time `json:"issued_at"`
 	ExpiredAt time.Time `json:"expired_at"`
@@ -30,7 +30,7 @@ func (payload *Payload) Valid() error {
 	return nil
 }
 
-func NewPayload(mode string, userID, duration time.Duration) (*Payload, error) {
+func NewPayload(mode, userID string, duration time.Duration) (*Payload, error) {
 	tokenID, err := uuid.NewRandom()
 	if err != nil {
 		return nil, err
@@ -38,6 +38,7 @@ func NewPayload(mode string, userID, duration time.Duration) (*Payload, error) {
 
 	payload := &Payload{
 		ID:        tokenID,
+		UserID:    userID,
 		Mode:      mode,
 		IssuedAt:  time.Now(),
 		ExpiredAt: time.Now().Add(duration),

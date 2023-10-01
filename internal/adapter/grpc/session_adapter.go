@@ -28,8 +28,23 @@ func (a *GrpcServerAdapter) CreateSession(ctx context.Context, UserID *session.U
 		RefreshTokenExpiresAt: util.ToDateTime(sessionDomain.RefreshTokenExpiresAt),
 	}, nil
 }
-func (a *GrpcServerAdapter) RefreshToken(context.Context, *session.SessionID) (*session.Session, error) {
-	return &session.Session{}, nil
+func (a *GrpcServerAdapter) RefreshToken(ctx context.Context, sess *session.SessionID) (*session.Session, error) {
+	s, err := a.service.RefreshToken(ctx, sess.SessionId)
+	if err != nil {
+		return nil, generateError(
+			codes.FailedPrecondition,
+			fmt.Sprintf("error refresh token: %v", err),
+		)
+	}
+
+	return &session.Session{
+		Id:                    s.ID,
+		UserId:                s.UserID,
+		AccessToken:           s.AccessToken,
+		RefreshToken:          s.RefreshToken,
+		AccessTokenExpiresAt:  util.ToDateTime(s.AccessTokenExpiresAt),
+		RefreshTokenExpiresAt: util.ToDateTime(s.RefreshTokenExpiresAt),
+	}, nil
 }
 func (a *GrpcServerAdapter) DeleteSession(context.Context, *session.SessionID) (*session.SessionID, error) {
 	return &session.SessionID{}, nil
@@ -46,7 +61,7 @@ func (a *GrpcServerAdapter) GetPayloadFromToken(ctx context.Context, tkn *sessio
 	if payload.Mode == application.MODE_REFRESH_TOKEN {
 		return nil, generateError(
 			codes.InvalidArgument,
-			fmt.Sprintf("cannot get payload using reffresh token"),
+			"cannot get payload using reffresh token",
 		)
 	}
 

@@ -46,8 +46,19 @@ func (a *GrpcServerAdapter) RefreshToken(ctx context.Context, sess *session.Sess
 		RefreshTokenExpiresAt: util.ToDateTime(s.RefreshTokenExpiresAt),
 	}, nil
 }
-func (a *GrpcServerAdapter) DeleteSession(context.Context, *session.SessionID) (*session.SessionID, error) {
-	return &session.SessionID{}, nil
+func (a *GrpcServerAdapter) DeleteSession(ctx context.Context, sess *session.SessionID) (*session.SessionID, error) {
+
+	_, err := a.service.DeleteSession(ctx, sess.SessionId)
+	if err != nil {
+		return nil, generateError(
+			codes.FailedPrecondition,
+			fmt.Sprintf("error delete session: %v", err),
+		)
+	}
+
+	return &session.SessionID{
+		SessionId: sess.SessionId,
+	}, nil
 }
 func (a *GrpcServerAdapter) GetPayloadFromToken(ctx context.Context, tkn *session.Token) (*session.Payload, error) {
 	payload, err := a.service.GetPayloadFromToken(ctx, tkn.AccessToken)

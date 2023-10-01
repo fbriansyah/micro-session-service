@@ -8,4 +8,5 @@ import (
 type CacheAdapterPort interface {
 	SetData(ctx context.Context, key string, data string, duration time.Duration) error
 	GetData(ctx context.Context, key string) (string, error)
+	DeleteData(ctx context.Context, key string) (string, error)
 }

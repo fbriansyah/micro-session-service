@@ -37,3 +37,12 @@ func (a *RedisAdapter) GetData(ctx context.Context, key string) (string, error) 
 
 	return strData, nil
 }
+
+func (a *RedisAdapter) DeleteData(ctx context.Context, key string) (string, error) {
+	_, err := a.db.Del(ctx, key).Result()
+	if err != nil {
+		return "", err
+	}
+
+	return key, nil
+}

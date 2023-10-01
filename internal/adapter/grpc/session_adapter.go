@@ -29,7 +29,7 @@ func (a *GrpcServerAdapter) CreateSession(ctx context.Context, UserID *session.U
 	}, nil
 }
 func (a *GrpcServerAdapter) RefreshToken(ctx context.Context, sess *session.SessionID) (*session.Session, error) {
-	s, err := a.service.RefreshToken(ctx, sess.SessionId)
+	s, err := a.service.RefreshToken(ctx, sess.SessionId, a.refeshTokenDuration)
 	if err != nil {
 		return nil, generateError(
 			codes.FailedPrecondition,

@@ -43,7 +43,7 @@ func NewGrpcServerAdapter(service port.SessionServicePort, config GrpcServerConf
 // Run grpc server
 func (a *GrpcServerAdapter) Run() {
 	var err error
-	listen, err := net.Listen("tcp", fmt.Sprintf("%d", a.grpcPort))
+	listen, err := net.Listen("tcp", fmt.Sprintf(":%d", a.grpcPort))
 
 	if err != nil {
 		log.Fatalf("failed to listen on port %d: %v\n", a.grpcPort, err)

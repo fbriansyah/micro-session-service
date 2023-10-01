@@ -135,3 +135,15 @@ func (s *SessionService) RefreshToken(ctx context.Context, sessionID string, dur
 		AccessTokenExpiresAt:  accessPayload.ExpiredAt,
 	}, nil
 }
+
+// DeleteSession from cache database
+func (s *SessionService) DeleteSession(ctx context.Context, sessionID string) (string, error) {
+	sessionKey := generateSessionKey(sessionID)
+
+	_, err := s.cacheAdapter.DeleteData(ctx, sessionKey)
+	if err != nil {
+		return "", err
+	}
+
+	return sessionID, nil
+}

@@ -62,6 +62,7 @@ func (s *SessionService) CreateSession(
 	// create session
 	sessionData := dmsession.Session{
 		ID:                    refreshPayload.ID.String(),
+		UserID:                userID,
 		RefreshToken:          refreshToken,
 		RefreshTokenExpiresAt: refreshPayload.ExpiredAt,
 		AccessToken:           accessToken,

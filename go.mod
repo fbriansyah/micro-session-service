@@ -8,10 +8,16 @@ require (
 	github.com/google/uuid v1.3.1
 	github.com/o1egl/paseto v1.0.0
 	github.com/redis/go-redis/v9 v9.2.1
+	github.com/rs/zerolog v1.31.0
 	github.com/spf13/viper v1.16.0
 	github.com/stretchr/testify v1.8.4
 	golang.org/x/crypto v0.13.0
 	google.golang.org/grpc v1.58.2
+)
+
+require (
+	github.com/mattn/go-colorable v0.1.13 // indirect
+	github.com/mattn/go-isatty v0.0.19 // indirect
 )
 
 require (

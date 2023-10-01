@@ -24,6 +24,13 @@ type SessionService struct {
 	cacheAdapter port.CacheAdapterPort
 }
 
+func NewSessionService(tokenMaker port.TokenMakerPort, cacheAdapter port.CacheAdapterPort) *SessionService {
+	return &SessionService{
+		tokenMaker:   tokenMaker,
+		cacheAdapter: cacheAdapter,
+	}
+}
+
 func generateSessionKey(id string) string {
 	return fmt.Sprintf("%s_%s", SESSION_CACHE_PREFIX, id)
 }

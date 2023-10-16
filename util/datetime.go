@@ -6,8 +6,8 @@ import (
 	"google.golang.org/genproto/googleapis/type/datetime"
 )
 
+// ToDateTime convert time.Time to *datetime.Datetime from proto package
 func ToDateTime(t time.Time) *datetime.DateTime {
-
 	return &datetime.DateTime{
 		Year:    int32(t.Year()),
 		Month:   int32(t.Month()),
@@ -19,6 +19,7 @@ func ToDateTime(t time.Time) *datetime.DateTime {
 	}
 }
 
+// FromDateTime convert *datetime.Datime to time.Time
 func FromDateTime(dt *datetime.DateTime) time.Time {
 	return time.Date(
 		int(dt.Year),
